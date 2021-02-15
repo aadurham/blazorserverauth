@@ -1,0 +1,54 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div>
+    @foreach (var m in messages)
+    {
+        <p>@m</p>
+    }
+
+    <button @onclick="InvokeSomething">Invoke Something</button>
+
+</div>
+
+@code{
+    private HubConnection connection;
+    private List<string> messages = new List<string>();
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+            connection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/myhub"))
+                .WithAutomaticReconnect()
+                .Build();
+
+
+
+            connection.On<string, string>("ReceiveMessage", ReceiveMessage);
+
+            await connection.StartAsync();
+    }
+
+
+    public void ReceiveMessage(string user, string msg)
+    {
+        messages.Add(user + " " + msg);
+        StateHasChanged();
+    }
+
+    public async void InvokeSomething()
+    {
+        await connection.InvokeAsync("InvokeSomething");
+    }
+}
+
