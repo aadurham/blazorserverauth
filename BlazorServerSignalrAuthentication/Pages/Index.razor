@@ -18,17 +18,31 @@ Welcome to your new app.
 </div>
 
 @code{
+    [CascadingParameter]
+    private Task<AuthenticationState> _authstate { get; set; }
+
+
     private HubConnection connection;
+    private AuthenticationState authstate { get; set; }
     private List<string> messages = new List<string>();
 
 
 
     protected override async Task OnInitializedAsync()
     {
+        authstate = await _authstate;
 
+        if (authstate != null)
+        {
+            var userid = authstate.User.Identity.Name;
+
+            messages.Add(userid + " has joined");
 
             connection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri("/myhub"))
+                .WithUrl(NavigationManager.ToAbsoluteUri("/myhub"), options => {
+                    options.Headers.Add("USERID", userid);
+                    options.Headers.Add("NAME", "adama bakya");
+                })
                 .WithAutomaticReconnect()
                 .Build();
 
@@ -37,6 +51,7 @@ Welcome to your new app.
             connection.On<string, string>("ReceiveMessage", ReceiveMessage);
 
             await connection.StartAsync();
+        }
     }
 
 
