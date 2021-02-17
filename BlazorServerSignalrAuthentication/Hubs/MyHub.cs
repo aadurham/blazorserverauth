@@ -13,8 +13,8 @@ namespace BlazorServerSignalrAuthentication.Hubs
         public async Task InvokeSomething()
         {
             var httpCtx = Context.GetHttpContext();
-            var name = httpCtx.Request.Headers["NAME"].ToString();
-            //var name = httpCtx.Request.Headers["USERID"].ToString();
+            //var name = httpCtx.Request.Headers["NAME"].ToString();
+            var name = httpCtx.Request.Headers["USERID"].ToString();
             await Clients.All.SendAsync("ReceiveMessage", name, " invoked this");
         }
 
